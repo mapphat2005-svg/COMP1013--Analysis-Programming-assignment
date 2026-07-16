@@ -1,0 +1,218 @@
+# Question 1: Data Inspection, Cleaning and Visualisation
+
+## Rationale
+
+The four datasets were loaded separately because they contain different types
+of FIFA World Cup information. Relative file paths were used so that the code
+can run from the GitHub project on another computer.
+
+The missing-value symbol `"?"` was replaced with `NA`, which is R's standard
+representation of missing data. The variables `Result`, `Stage`, `Country`, and
+`ExtraTime` were converted to factors because they represent categories.
+`HomePenalty` and `AwayPenalty` were converted to numeric variables, and their
+missing values were replaced with zero as required.
+
+A bar chart was selected to display `HomePenalty` because penalty goals are
+discrete count values such as 0, 1, 2, 3, 4, and 5. A bar chart presents each
+exact value separately and makes the frequency of each penalty total easy to
+compare. Only matches with `PenaltyShootout == 1` were included because the
+question specifically asks about matches that involved a penalty shootout.
+
+## Load the required package
+
+```{r packages, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(here)
+```
+
+## Load the datasets
+
+```{r load-data}
+# Load the four FIFA World Cup datasets from the project data folder.
+
+Tournaments <- read.csv(
+  here("data", "Tournaments.csv"),
+  stringsAsFactors = FALSE
+)
+
+Teams <- read.csv(
+  here("data", "Teams.csv"),
+  stringsAsFactors = FALSE
+)
+
+Stadiums <- read.csv(
+  here("data", "Stadiums.csv"),
+  stringsAsFactors = FALSE
+)
+
+Matches <- read.csv(
+  here("data", "Matches.csv"),
+  stringsAsFactors = FALSE
+)
+```
+
+## Inspect the data structure
+
+```{r inspect-structure}
+# Inspect the dimensions, variable names, and original data types.
+
+str(Tournaments)
+str(Teams)
+str(Stadiums)
+str(Matches)
+```
+
+## Present the data
+
+```{r present-data}
+# Display the first six observations from each dataset.
+
+head(Tournaments)
+head(Teams)
+head(Stadiums)
+head(Matches)
+```
+
+`str()` is used to inspect the structure and variable types, while `head()`
+presents a small sample of each dataset without printing every observation.
+
+## Replace `"?"` with `NA`
+
+```{r replace-missing-symbols}
+# Replace every question mark with R's standard missing value.
+
+Tournaments[Tournaments == "?"] <- NA
+Teams[Teams == "?"] <- NA
+Stadiums[Stadiums == "?"] <- NA
+Matches[Matches == "?"] <- NA
+```
+
+This method searches each data frame and changes all occurrences of `"?"` to
+`NA`.
+
+## Convert categorical variables to factors
+
+```{r convert-factors}
+# Convert the required categorical variables to factors.
+
+Matches$Result <- factor(Matches$Result)
+Matches$Stage <- factor(Matches$Stage)
+Stadiums$Country <- factor(Stadiums$Country)
+Matches$ExtraTime <- factor(Matches$ExtraTime)
+```
+
+The actual column name in the dataset is `ExtraTime`. R is case-sensitive, so
+writing `Extratime` would create or refer to a different variable.
+
+## Convert penalty variables to numeric and replace missing values
+
+```{r clean-penalty-variables}
+# Convert the two penalty variables from character to numeric format.
+
+Matches$HomePenalty <- as.numeric(Matches$HomePenalty)
+Matches$AwayPenalty <- as.numeric(Matches$AwayPenalty)
+
+# Replace missing penalty values with zero.
+
+Matches$HomePenalty[is.na(Matches$HomePenalty)] <- 0
+Matches$AwayPenalty[is.na(Matches$AwayPenalty)] <- 0
+```
+
+The missing values are replaced after numeric conversion because the assignment
+specifically requires missing `HomePenalty` and `AwayPenalty` values to become
+zero.
+
+## Inspect the cleaned data
+
+```{r inspect-cleaned-data}
+# Confirm that the required variables now have the correct data types.
+
+str(Matches)
+str(Stadiums)
+
+# Present a summary of the cleaned Matches dataset.
+
+summary(Matches)
+```
+
+## Visualise the distribution of HomePenalty
+
+```{r home-penalty-plot, fig.width=8, fig.height=5}
+# Use only matches that involved a penalty shootout in this chart.
+
+ggplot(
+  data = subset(Matches, PenaltyShootout == 1),
+  aes(x = factor(HomePenalty))
+) +
+  geom_bar(
+    fill = "steelblue",
+    colour = "black"
+  ) +
+  labs(
+    title = "Distribution of Home Penalty Goals in Penalty Shootouts",
+    x = "Number of home-team penalty goals",
+    y = "Number of matches"
+  ) +
+  theme_minimal()
+```
+
+The expression:
+
+```r
+subset(Matches, PenaltyShootout == 1)
+```
+
+does not create a separate filtering analysis. It simply ensures that the chart
+uses only the matches requested by the question.
+
+## Justification of the chart
+
+A bar chart is appropriate because `HomePenalty` is a discrete numerical
+variable with a small number of possible whole-number values. Each bar
+represents one exact number of penalty goals, and the height represents how many
+matches recorded that value.
+
+A histogram was not selected because histograms are generally more useful for
+continuous numerical variables that need to be divided into intervals. Grouping
+these penalty totals into intervals would make the exact frequencies less clear.
+
+## Interpretation
+
+The chart contains 35 matches that involved a penalty shootout. Three home-team
+penalty goals were the most common outcome, occurring in 12 matches. Four goals
+were the second most common, occurring in 10 matches. Home teams recorded zero
+goals in five matches, five goals in four matches, one goal in three matches,
+and two goals in one match.
+
+Therefore, the distribution is concentrated mainly around three and four
+home-team penalty goals. Very low penalty totals occurred less frequently.
+However, this is a descriptive analysis only. It does not demonstrate that
+being recorded as the home team caused a team to score a particular number of
+penalties.
+
+## Code testing
+
+```{r code-testing}
+# Confirm that the required categorical variables are factors.
+
+stopifnot(is.factor(Matches$Result))
+stopifnot(is.factor(Matches$Stage))
+stopifnot(is.factor(Stadiums$Country))
+stopifnot(is.factor(Matches$ExtraTime))
+
+# Confirm that the penalty variables are numeric.
+
+stopifnot(is.numeric(Matches$HomePenalty))
+stopifnot(is.numeric(Matches$AwayPenalty))
+
+# Confirm that the penalty variables have no missing values.
+
+stopifnot(!any(is.na(Matches$HomePenalty)))
+stopifnot(!any(is.na(Matches$AwayPenalty)))
+
+# Confirm that the dataset contains penalty-shootout matches.
+
+stopifnot(sum(Matches$PenaltyShootout == 1) == 35)
+
+cat("All Question 1 tests passed successfully.")
+```
