@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Question 1: Data Inspection, Cleaning and Visualisation
 
 ## Rationale
@@ -30,25 +35,12 @@ library(here)
 ```{r load-data}
 # Load the four FIFA World Cup datasets from the project data folder.
 
-Tournaments <- read.csv(
-  here("data", "Tournaments.csv"),
-  stringsAsFactors = FALSE
-)
+ #Exercise 1
+  Tournaments <- read.csv("E:/A2 data/Tournaments.csv")
+  Teams <- read.csv("E:/A2 data/Teams.csv")
+  Stadiums <- read.csv("E:/A2 data/Stadiums.csv")
+  Matches <- read.csv("E:/A2 data/Matches.csv")
 
-Teams <- read.csv(
-  here("data", "Teams.csv"),
-  stringsAsFactors = FALSE
-)
-
-Stadiums <- read.csv(
-  here("data", "Stadiums.csv"),
-  stringsAsFactors = FALSE
-)
-
-Matches <- read.csv(
-  here("data", "Matches.csv"),
-  stringsAsFactors = FALSE
-)
 ```
 
 ## Inspect the data structure
@@ -95,10 +87,10 @@ This method searches each data frame and changes all occurrences of `"?"` to
 ```{r convert-factors}
 # Convert the required categorical variables to factors.
 
-Matches$Result <- factor(Matches$Result)
-Matches$Stage <- factor(Matches$Stage)
-Stadiums$Country <- factor(Stadiums$Country)
-Matches$ExtraTime <- factor(Matches$ExtraTime)
+Matches$Result <-as.factor(Matches$Result)
+Matches$Stage <- as.factor(Matches$Stage)
+Stadiums$Country <- as.factor(Stadiums$Country)
+Matches$ExtraTime <- as.factor(Matches$ExtraTime)
 ```
 
 The actual column name in the dataset is `ExtraTime`. R is case-sensitive, so
@@ -135,13 +127,32 @@ str(Stadiums)
 summary(Matches)
 ```
 
+## Identify matches that involved a penalty shootout
+
+```{r subset-penalty-shootouts}
+# Keep only matches that involved a penalty shootout.
+# In the dataset, 1 means that a penalty shootout occurred.
+
+PenaltyMatches <- subset(
+  Matches,
+  PenaltyShootout == 1
+)
+
+# Inspect the filtered data.
+
+head(PenaltyMatches)
+nrow(PenaltyMatches)
+```
+
+The `subset()` function was used to select only observations where
+`PenaltyShootout` equals 1. This ensures that the following visualisation does
+not include ordinary matches that did not proceed to a penalty shootout.
+
 ## Visualise the distribution of HomePenalty
 
-```{r home-penalty-plot, fig.width=8, fig.height=5}
-# Use only matches that involved a penalty shootout in this chart.
-
+```{r home-penalty-visualisation, fig.width=8, fig.height=5}
 ggplot(
-  data = subset(Matches, PenaltyShootout == 1),
+  data = PenaltyMatches,
   aes(x = factor(HomePenalty))
 ) +
   geom_bar(
@@ -156,39 +167,36 @@ ggplot(
   theme_minimal()
 ```
 
-The expression:
+## Justification of chart choice
 
-```r
-subset(Matches, PenaltyShootout == 1)
-```
+A bar chart was selected because `HomePenalty` is a discrete numerical variable.
+The possible values are whole-number counts such as 0, 1, 2, 3, 4, and 5.
+Each bar therefore represents one exact number of home-team penalty goals, and
+the height of the bar shows how many matches recorded that value.
 
-does not create a separate filtering analysis. It simply ensures that the chart
-uses only the matches requested by the question.
+Although `HomePenalty` was previously converted to numeric format, it is
+temporarily written as `factor(HomePenalty)` inside `aes()`. This tells
+`ggplot2` to display each possible penalty total as a separate category. It
+does not change the stored data type of `Matches$HomePenalty`.
 
-## Justification of the chart
-
-A bar chart is appropriate because `HomePenalty` is a discrete numerical
-variable with a small number of possible whole-number values. Each bar
-represents one exact number of penalty goals, and the height represents how many
-matches recorded that value.
-
-A histogram was not selected because histograms are generally more useful for
-continuous numerical variables that need to be divided into intervals. Grouping
-these penalty totals into intervals would make the exact frequencies less clear.
+A histogram was not selected because a histogram divides numerical values into
+intervals. For this variable, the exact frequencies of individual whole-number
+penalty totals are more meaningful than grouped intervals.
 
 ## Interpretation
 
-The chart contains 35 matches that involved a penalty shootout. Three home-team
-penalty goals were the most common outcome, occurring in 12 matches. Four goals
-were the second most common, occurring in 10 matches. Home teams recorded zero
-goals in five matches, five goals in four matches, one goal in three matches,
-and two goals in one match.
+The chart shows that three home-team penalty goals were the most frequent
+result, occurring in 12 penalty-shootout matches. Four goals were the second
+most frequent result, occurring in 10 matches.
 
-Therefore, the distribution is concentrated mainly around three and four
-home-team penalty goals. Very low penalty totals occurred less frequently.
-However, this is a descriptive analysis only. It does not demonstrate that
-being recorded as the home team caused a team to score a particular number of
-penalties.
+Zero goals occurred in five matches, five goals occurred in four matches, one
+goal occurred in three matches, and two goals occurred in only one match.
+Therefore, the distribution is mainly concentrated around three and four
+home-team penalty goals.
+
+This is a descriptive result. It shows the pattern present in the dataset, but
+it does not prove that being listed as the home team caused a team to score a
+particular number of penalties.
 
 ## Code testing
 
@@ -216,3 +224,372 @@ stopifnot(sum(Matches$PenaltyShootout == 1) == 35)
 
 cat("All Question 1 tests passed successfully.")
 ```
+# Question 2: Distribution of HomeTeamScore
+
+## Rationale
+
+The `Matches` dataset contains `HomeTeamScore`, `AwayTeamScore`, and `Stage`,
+while `TournamentName` is stored in the `Tournaments` dataset. Therefore, the
+two datasets were combined using their common variable, `TournamentID`.
+A left-style merge was used to retain every observation from the Matches
+dataset.
+
+Histograms were selected because the task specifically requires histograms to
+analyse the distribution of `HomeTeamScore`. A bin width of one was used because
+football scores are recorded as whole numbers. Faceting was used to display a
+separate histogram for each competition stage, tournament, and away-team score
+group.
+
+The `AwayTeamScore` values were divided into the three groups specified in the
+task: 0–1 goals, 2–3 goals, and 4 or more goals. The `cut()` function was used
+because it provides clear numerical boundaries for these groups.
+
+## Combine Matches and Tournaments
+
+```{r q2-combine-data}
+# Add TournamentName to the Matches dataset using TournamentID.
+
+Matches2 <- merge(
+  Matches,
+  Tournaments[, c("TournamentID", "TournamentName")],
+  by = "TournamentID",
+  all.x = TRUE,
+  sort = FALSE
+)
+
+# Present the first six rows of the combined dataset.
+
+head(Matches2)
+```
+
+`all.x = TRUE` keeps all observations from the `Matches` dataset, even if a
+matching tournament record is not found.
+
+## Distribution of HomeTeamScore by Stage
+
+```{r q2-stage-histogram, fig.width=10, fig.height=9}
+ggplot(
+  Matches2,
+  aes(x = HomeTeamScore)
+) +
+  geom_histogram(
+    binwidth = 1,
+    boundary = -0.5,
+    fill = "steelblue",
+    colour = "black"
+  ) +
+  scale_x_continuous(
+    breaks = 0:max(Matches2$HomeTeamScore, na.rm = TRUE)
+  ) +
+  facet_wrap(
+    ~ Stage,
+    ncol = 2,
+    scales = "free_y"
+  ) +
+  labs(
+    title = "Distribution of Home-Team Scores by Competition Stage",
+    x = "Home-team goals",
+    y = "Number of matches"
+  ) +
+  theme_minimal()
+```
+
+`scales = "free_y"` allows each panel to use a suitable vertical scale.
+This makes the distribution visible for stages containing fewer matches.
+Therefore, the shapes of the distributions can be compared, but the absolute
+bar heights should be compared carefully because the vertical scales may differ.
+
+## Interpretation by Stage
+
+Across most competition stages, home-team scores are concentrated between zero
+and two goals. In the group stage, one goal is the most frequent result, while
+zero and two goals are also common. The round of 16 and quarter-finals show a
+similar concentration around one and two goals.
+
+Finals show a somewhat different pattern, with three and four home-team goals
+appearing relatively often. However, there are only 21 final matches, so this
+pattern is based on a much smaller sample than the group-stage distribution.
+A small number of unusually high scores also create long right tails in several
+stages.
+
+Overall, most stage distributions are right-skewed: lower scores are common,
+while very high home-team scores occur only occasionally.
+
+## Distribution of HomeTeamScore by TournamentName
+
+```{r q2-tournament-histogram, fig.width=12, fig.height=15}
+ggplot(
+  Matches2,
+  aes(x = HomeTeamScore)
+) +
+  geom_histogram(
+    binwidth = 1,
+    boundary = -0.5,
+    fill = "steelblue",
+    colour = "black"
+  ) +
+  scale_x_continuous(
+    breaks = 0:max(Matches2$HomeTeamScore, na.rm = TRUE)
+  ) +
+  facet_wrap(
+    ~ TournamentName,
+    ncol = 4,
+    scales = "free_y"
+  ) +
+  labs(
+    title = "Distribution of Home-Team Scores by FIFA World Cup",
+    x = "Home-team goals",
+    y = "Number of matches"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 7),
+    axis.text.x = element_text(size = 7)
+  )
+```
+
+## Interpretation by Tournament
+
+The earlier tournaments generally show wider score distributions and more
+high-scoring home teams. This is particularly visible in tournaments such as
+1930, 1938, 1950, and 1954. The 1954 tournament has a distribution concentrated
+further to the right, with four home-team goals occurring frequently.
+
+From the 1970s onward, the distributions become more concentrated around zero,
+one, and two home-team goals. Modern tournaments such as 1990, 2006, 2010, and
+2014 show comparatively fewer high home-team scores.
+
+This suggests that the distribution of home-team goals changed across
+tournaments, with earlier World Cups generally having wider and higher-scoring
+distributions. However, tournament sizes and competition formats changed over
+time, so the histograms describe trends but do not identify their causes.
+
+## Create AwayTeamScore groups
+
+```{r q2-away-score-groups}
+# Divide AwayTeamScore into the three groups required by the task.
+
+Matches2$AwayScoreGroup <- cut(
+  Matches2$AwayTeamScore,
+  breaks = c(-1, 1, 3, Inf),
+  labels = c(
+    "0-1 goals",
+    "2-3 goals",
+    "4 or more goals"
+  ),
+  include.lowest = TRUE
+)
+
+# Check the new variable.
+
+str(Matches2$AwayScoreGroup)
+```
+
+The boundaries create the following groups:
+
+- values from 0 to 1 become `"0-1 goals"`;
+- values from 2 to 3 become `"2-3 goals"`;
+- values of 4 or more become `"4 or more goals"`.
+
+## Distribution of HomeTeamScore by AwayTeamScore group
+
+```{r q2-away-group-histogram, fig.width=10, fig.height=5}
+ggplot(
+  Matches2,
+  aes(x = HomeTeamScore)
+) +
+  geom_histogram(
+    binwidth = 1,
+    boundary = -0.5,
+    fill = "steelblue",
+    colour = "black"
+  ) +
+  scale_x_continuous(
+    breaks = 0:max(Matches2$HomeTeamScore, na.rm = TRUE)
+  ) +
+  facet_wrap(
+    ~ AwayScoreGroup,
+    nrow = 1,
+    scales = "free_y"
+  ) +
+  labs(
+    title = "Distribution of Home-Team Scores by Away-Team Score Group",
+    x = "Home-team goals",
+    y = "Number of matches"
+  ) +
+  theme_minimal()
+```
+
+## Interpretation by AwayTeamScore group
+
+For matches where the away team scored zero or one goal, home-team scores are
+mainly concentrated between zero and two goals, with one goal being the most
+common result. This group contains most of the observations.
+
+For matches where the away team scored two or three goals, home-team scores
+remain concentrated around zero, one, and two goals. The distribution is
+slightly more spread out, although high home-team scores are still uncommon.
+
+The group where the away team scored four or more goals contains relatively few
+matches. Home-team scores in this group are also generally low, with one goal
+being the most common result. Because this group has a much smaller number of
+observations, its pattern should be interpreted cautiously.
+
+Overall, the shapes of the three distributions are broadly similar. In every
+group, low home-team scores occur more frequently than very high home-team
+scores. There is no strong visual evidence that higher away-team score groups
+are associated with a major shift in the typical home-team score.
+
+## Code testing
+
+```{r q2-code-testing}
+# The merge should preserve every row from Matches.
+
+stopifnot(nrow(Matches2) == nrow(Matches))
+
+# Every match should receive a TournamentName.
+
+stopifnot(!any(is.na(Matches2$TournamentName)))
+
+# AwayScoreGroup should be a factor created by cut().
+
+stopifnot(is.factor(Matches2$AwayScoreGroup))
+
+# Every match should be assigned to one of the three groups.
+
+stopifnot(!any(is.na(Matches2$AwayScoreGroup)))
+
+# Test the boundaries of each AwayTeamScore group.
+
+stopifnot(
+  all(
+    Matches2$AwayTeamScore[
+      Matches2$AwayScoreGroup == "0-1 goals"
+    ] <= 1
+  )
+)
+
+stopifnot(
+  all(
+    Matches2$AwayTeamScore[
+      Matches2$AwayScoreGroup == "2-3 goals"
+    ] >= 2 &
+    Matches2$AwayTeamScore[
+      Matches2$AwayScoreGroup == "2-3 goals"
+    ] <= 3
+  )
+)
+
+stopifnot(
+  all(
+    Matches2$AwayTeamScore[
+      Matches2$AwayScoreGroup == "4 or more goals"
+    ] >= 4
+  )
+)
+
+cat("All Question 2 tests passed successfully.")
+```
+
+If all tests are correct, the final output will display:
+
+```text
+All Question 2 tests passed successfully.
+```
+#Question 3: National Teams in Penalty Shootouts
+
+##  Rationale 
+The analysis first filters the Matches dataset to retain only matches that were
+decided by a penalty shootout. Home-team and away-team participation are counted
+separately because they are stored in different variables and the task requires
+two separate rankings.
+
+The `table()` function is used to count how many times each Team ID appears.
+The resulting counts are then joined with the Teams dataset using `merge()` so
+that each Team ID can be displayed using its official TeamName and TeamCode.
+Finally, the results are sorted from highest to lowest and the first five teams
+are selected.
+##Filter out the matches decided by a penalty shootout
+```{r q3-filter-penalty-matches}
+Q3penalty_matches <- subset(
+  Matches, 
+  PenaltyShootout == 1 
+)
+#Check the number of penalty-shootour matches
+nrow(Q3penalty_matches)
+#Check the accuracy of filtered data 
+table(Q3penalty_matches$PenaltyShootout)
+```
+##Top 5 home-teams that have most frequently participated in these matches
+```{r q3-count-home-teams}
+# Count how many penalty shootouts each home team participated in
+HomeTeamCounts <- as.data.frame(
+  table(Q3penalty_matches$HomeTeamID)
+)
+
+# Rename the columns
+names(HomeTeamCounts) <- c(
+  "TeamID",
+  "NumberOfMatches"
+)
+
+# Make sure TeamID has the same data type in both datasets
+HomeTeamCounts$TeamID <- as.character(HomeTeamCounts$TeamID)
+Teams$TeamID <- as.character(Teams$TeamID)
+
+# Add TeamName and TeamCode using TeamID
+HomeTeamResults <- merge(
+  HomeTeamCounts,
+  Teams,
+  by = "TeamID"
+)
+
+# Sort from highest to lowest
+HomeTeamResults <- HomeTeamResults[
+  order(-HomeTeamResults$NumberOfMatches),
+]
+
+# Keep the required columns
+HomeTeamResults <- HomeTeamResults[
+  ,
+  c("TeamName", "TeamCode", "NumberOfMatches")
+]
+
+# Select the top five teams
+Top5HomeTeams <- head(HomeTeamResults, 5)
+
+Top5HomeTeams
+```
+##Top 5 away-teams that have most frequently participated in these matches
+```{r q3-count-away-teams}
+AwayTeamCounts <- as.data.frame(
+  table(Q3penalty_matches$AwayTeamID)
+)
+
+names(AwayTeamCounts) <- c(
+  "TeamID",
+  "NumberOfMatches"
+)
+
+AwayTeamCounts$TeamID <- as.character(AwayTeamCounts$TeamID)
+
+AwayTeamResults <- merge(
+  AwayTeamCounts,
+  Teams,
+  by = "TeamID"
+)
+
+AwayTeamResults <- AwayTeamResults[
+  order(-AwayTeamResults$NumberOfMatches),
+]
+
+AwayTeamResults <- AwayTeamResults[
+  ,
+  c("TeamName", "TeamCode", "NumberOfMatches")
+]
+
+Top5AwayTeams <- head(AwayTeamResults, 5)
+
+Top5AwayTeams
+```
+
