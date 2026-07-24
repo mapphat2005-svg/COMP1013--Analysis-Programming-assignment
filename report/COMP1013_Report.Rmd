@@ -1,27 +1,48 @@
 ---
-output:
-  pdf_document: default
-  html_document: default
+title: "AP Assignment Report"
+author: "Le Van Vinh Phat"
+date: "24 July 2026"
+output: pdf_document
 ---
+\begin{center}
+
+{\LARGE\textbf{AP Assignment Report}}\\[0.8cm]
+
+{\large\textbf{COMP1013 Analytics Programming}}\\[1cm]
+
+{\large Le Van Vinh Phat}\\[0.3cm]
+
+{\large Student Number: 22202375}\\[0.3cm]
+
+{\large 24 July 2026}\\[0.5cm]
+
+\end{center}
+
+\vspace{0.7cm}
+## Declaration
+
+By including this statement, I, the author of this work, verify that:
+- I hold a copy of this assignment that I can produce if the original is lost or damaged.
+
+- I hereby certify that no part of this assignment/product has been copied from any other student's work or from any other source except where due acknowledgement is made in the assignment.
+
+- No part of this assignment/product has been written/produced for me by another person except where such collaboration has been authorised by the subject lecturer/tutor concerned.
+
+- I am aware that this work may be reproduced and submitted to plagiarism detection software programs for the purpose of detecting possible plagiarism, which may retain a copy on its database for future plagiarism checking.
+
+- I hereby certify that I have read and understand what the School of Computing, Engineering and Mathematics defines as minor and substantial breaches of misconduct as outlined in the learning guide for this unit.
+
+\newpage
+
+# Question 1: Data Inspection, Cleaning and Visualisation
 # Question 1: Data Inspection, Cleaning and Visualisation
 
 ## Rationale
 
-The four datasets were loaded separately because they contain different types
-of FIFA World Cup information. Relative file paths were used so that the code
-can run from the GitHub project on another computer.
+The four data sets are imported independently due to the different types of data. Access to World Cup information. Relative project paths are used to ensure that the analysis can be run after downloading repository to another computer. Question Just like a number, a missing value is represented as 'NA', which is R's default representation for. missing data.
+The factors is applied to the following variables:The following variables are converted to factors: HomePenalty is not a continuous measurement, they are categories. 'AwayPenalty' are converted to numeric variables so that they can be analysed Correctly, any missing data are filled with zeros as per task requirements.
+The penalty shootout matches are chosen using 'subset()' and then plotted. A The choice of bar chart is chosen because 'HomePenalty' is a count variable that takes only discrete values and has a Few Integer values. exact frequency of each bar in separate figure Penalties are far more easy to identify with each interval in the grouped histogram than with each interval in the drawn histogram.
 
-The missing-value symbol `"?"` was replaced with `NA`, which is R's standard
-representation of missing data. The variables `Result`, `Stage`, `Country`, and
-`ExtraTime` were converted to factors because they represent categories.
-`HomePenalty` and `AwayPenalty` were converted to numeric variables, and their
-missing values were replaced with zero as required.
-
-A bar chart was selected to display `HomePenalty` because penalty goals are
-discrete count values such as 0, 1, 2, 3, 4, and 5. A bar chart presents each
-exact value separately and makes the frequency of each penalty total easy to
-compare. Only matches with `PenaltyShootout == 1` were included because the
-question specifically asks about matches that involved a penalty shootout.
 
 ## Load the required package
 
@@ -33,7 +54,7 @@ library(here)
 ## Load the datasets
 
 ```{r load-data}
-# Load the four FIFA World Cup datasets from the project data folder.
+# Load the four FIFA World Cup dataset from the project data folder.
 
  #Exercise 1
   Tournaments <- read.csv("E:/A2 data/Tournaments.csv")
@@ -169,34 +190,18 @@ ggplot(
 
 ## Justification of chart choice
 
-A bar chart was selected because `HomePenalty` is a discrete numerical variable.
-The possible values are whole-number counts such as 0, 1, 2, 3, 4, and 5.
-Each bar therefore represents one exact number of home-team penalty goals, and
-the height of the bar shows how many matches recorded that value.
+Because of being a discrete numerical variable, the bar chart will be the most suitable graph to display ‘HomePenalty’. In this, each bar can represent one exact number of home-team penalty goals and the height of the bar shows the frequency of matches.
 
-Although `HomePenalty` was previously converted to numeric format, it is
-temporarily written as `factor(HomePenalty)` inside `aes()`. This tells
-`ggplot2` to display each possible penalty total as a separate category. It
-does not change the stored data type of `Matches$HomePenalty`.
+While ‘Matches$HomePenalty’ is permanently stored as a numeric value in the dataset, it is temporarily treated as categorical data by writing factor(HomePenalty) in the aes() function. This tells the plotting engine to separate every penalty count without permanently altering the underlying dataframe. 
 
-A histogram was not selected because a histogram divides numerical values into
-intervals. For this variable, the exact frequencies of individual whole-number
-penalty totals are more meaningful than grouped intervals.
+Despite the unsuitable impact of histogram that divides numerical values into intervals, it can meet the demand of these variables that the frequencies of individuals whole-number penalty totals are more meaningful than grouped intervals. 
 
 ## Interpretation
 
-The chart shows that three home-team penalty goals were the most frequent
-result, occurring in 12 penalty-shootout matches. Four goals were the second
-most frequent result, occurring in 10 matches.
+The chart includes 35 matches that were decided by a penalty shootout. Three The most common, occurring in 12 games, is home-team penalty goal. Gave up four goals in 10 games. These values add up to 22 of the 35 observations, with the distribution being primarily centered around three. Four successful penalties, and.
+Five matches with zero goals, 3 matches with one, 1 match with 2. The five goals he has scored in his last four games, matches. The zero category is valid since a team can shoot but not score points in an original shootout. There are no missing values of 'HomePenalty' in observations.
+The distribution is skewed to the right with the majority of observations being towards the lower end. There are fewer matches at the other values; near three and four. Overall, three This data set contains the most common home team scores: four penalties. The chart is descriptive but it is not proof that the home-team A specific score of penalty was awarded for designation.
 
-Zero goals occurred in five matches, five goals occurred in four matches, one
-goal occurred in three matches, and two goals occurred in only one match.
-Therefore, the distribution is mainly concentrated around three and four
-home-team penalty goals.
-
-This is a descriptive result. It shows the pattern present in the dataset, but
-it does not prove that being listed as the home team caused a team to score a
-particular number of penalties.
 
 ## Code testing
 
@@ -228,21 +233,9 @@ cat("All Question 1 tests passed successfully.")
 
 ## Rationale
 
-The `Matches` dataset contains `HomeTeamScore`, `AwayTeamScore`, and `Stage`,
-while `TournamentName` is stored in the `Tournaments` dataset. Therefore, the
-two datasets were combined using their common variable, `TournamentID`.
-A left-style merge was used to retain every observation from the Matches
-dataset.
-
-Histograms were selected because the task specifically requires histograms to
-analyse the distribution of `HomeTeamScore`. A bin width of one was used because
-football scores are recorded as whole numbers. Faceting was used to display a
-separate histogram for each competition stage, tournament, and away-team score
-group.
-
-The `AwayTeamScore` values were divided into the three groups specified in the
-task: 0–1 goals, 2–3 goals, and 4 or more goals. The `cut()` function was used
-because it provides clear numerical boundaries for these groups.
+The dataset 'Matches' includes the columns 'HomeTeamScore', 'AwayTeamScore' and 'Stage', while 'TournamentName' is stored in 'Tournaments'. Because of this, the datasets are therefore The tournament data was linked to the players' data by their shared 'TournamentID' so that each match could be analysed. by tournament name.
+A) they are requested in the task, and B) they are appropriate to use for this type of data. they show how frequently different home-team scores occur. A bin width of one is suitable since the scores in football are whole number counts. The function 'facet_wrap()' will make a histogram for each stage, tournament, and Using away-score group, multiple distributions can be compared in a single analysis. figure.
+AwayTeamScore is segmented into 0-1, 2-3 and 4+ goal groups with cut(), which does claret and repeatable numeric boundaries. The analysis is concerned with distribution shape, centre, spread and unusually high. To compare scores keeping in mind the difference in the number of matches played in each group.
 
 ## Combine Matches and Tournaments
 
@@ -301,19 +294,9 @@ bar heights should be compared carefully because the vertical scales may differ.
 
 ## Interpretation by Stage
 
-Across most competition stages, home-team scores are concentrated between zero
-and two goals. In the group stage, one goal is the most frequent result, while
-zero and two goals are also common. The round of 16 and quarter-finals show a
-similar concentration around one and two goals.
-
-Finals show a somewhat different pattern, with three and four home-team goals
-appearing relatively often. However, there are only 21 final matches, so this
-pattern is based on a much smaller sample than the group-stage distribution.
-A small number of unusually high scores also create long right tails in several
-stages.
-
-Overall, most stage distributions are right-skewed: lower scores are common,
-while very high home-team scores occur only occasionally.
+In most competitons, the home team scores fall around the average of zero. and two goals. This stage of the group stage has 676 matches with a median score of one goal, the most common outcome being one goal. There is a round of 16 in the event. A slightly higher centre with a mean of approximately 2.04 and a median of 2.
+Medians are also two for a semi-final and other third place matches have a median of three goals. The last round is the highest round with the mean of the approximate value of It has a 3.83 rating, but includes just 6 matches. For this reason, there are only a few high-quality quizzes available. Its distribution can be significantly affected by its scores.
+Several stages have long right tails as occasionally matches contain: High away team scores, even as high as 10 in the group stage. A general trend of lower scores is observed, except for the later knockout In the cases of some stages, higher centres are shown. The differences are to be interpreted are used with great care since the size of samples on the stages varies considerably and the charts do not Consider what factors, like a strong team or old tournament regulations, may have influenced the results.
 
 ## Distribution of HomeTeamScore by TournamentName
 
@@ -350,19 +333,9 @@ ggplot(
 
 ## Interpretation by Tournament
 
-The earlier tournaments generally show wider score distributions and more
-high-scoring home teams. This is particularly visible in tournaments such as
-1930, 1938, 1950, and 1954. The 1954 tournament has a distribution concentrated
-further to the right, with four home-team goals occurring frequently.
-
-From the 1970s onward, the distributions become more concentrated around zero,
-one, and two home-team goals. Modern tournaments such as 1990, 2006, 2010, and
-2014 show comparatively fewer high home-team scores.
-
-This suggests that the distribution of home-team goals changed across
-tournaments, with earlier World Cups generally having wider and higher-scoring
-distributions. However, tournament sizes and competition formats changed over
-time, so the histograms describe trends but do not identify their causes.
+The histograms of the tournaments show that there were more World Cups with higher and More dispersed home-team score distributions than previous tournaments. The 1954 FIFA On average, World Cup has the highest amount of goals scored by the home team, around 4.19 goals, followed by 1938 at 3.39 and 1930 at 3.28. These tournaments are also included in the games several matches where the home team scored four or more goals.
+That is contrasted to modern tournaments, which tend to focus on the 0-1 area, and two goals. The mean was approximately 1.23 in 1990, 1.19 in 2010, and 1.27 in 2014. Some recent competitions still have a few high-scoring isolated competitions. In matches, these observations are not the, but are instead part of long right tails. typical score.
+As a whole, the pattern of scores indicates that home teams started to score less. More focussed through time. However, the analysis doesn't provide a cause as to why this occurred. The level of the tournament, the type of competition, the quality of the teams, the way the game is played and the defensive tactics have evolved over time, and the name of the tournament (TournamentName) has changed over time. represents multiple differences and not just one cause of that difference. 
 
 ## Create AwayTeamScore groups
 
@@ -422,23 +395,12 @@ ggplot(
 
 ## Interpretation by AwayTeamScore group
 
-For matches where the away team scored zero or one goal, home-team scores are
-mainly concentrated between zero and two goals, with one goal being the most
-common result. This group contains most of the observations.
+Away-Team Score Group interpretation is available.Away-Team Score Group interpretation is available.
+The score of the 3 'AwayTeamScore' groups is fairly similar at home. distributions. In each group, the goal scored by the home team is the most common value. This is also true of the median of the data.
+The mean HomeTeamScore is ~1.77 when the away team scored. Any goal scored by the ball was equal to 1.75 when the ball scored two goals, and 1.73 when the ball scored three goals. scored 4 or more. The similar averages suggest that the centre of the This is because there are only minor differences in home-team distribution between the groups.
+The biggest difference is the number of samples. The 0-1 group have 701 matches, 237 are in the 2–3 group and there are only 26 in the 4-or-more group. Consequently, The last one is less smooth, and more susceptible to match-ups.
+Overall the charts do not offer much visual clue of a significant change in usual. The value of 'HomeTeamScore' gets higher as the value of 'AwayTeamScore' also gets higher. This is a description, a comparison, and the smallest highest scoring group restricts the force of any conclusion
 
-For matches where the away team scored two or three goals, home-team scores
-remain concentrated around zero, one, and two goals. The distribution is
-slightly more spread out, although high home-team scores are still uncommon.
-
-The group where the away team scored four or more goals contains relatively few
-matches. Home-team scores in this group are also generally low, with one goal
-being the most common result. Because this group has a much smaller number of
-observations, its pattern should be interpreted cautiously.
-
-Overall, the shapes of the three distributions are broadly similar. In every
-group, low home-team scores occur more frequently than very high home-team
-scores. There is no strong visual evidence that higher away-team score groups
-are associated with a major shift in the typical home-team score.
 
 ## Code testing
 
@@ -499,16 +461,10 @@ All Question 2 tests passed successfully.
 #Question 3: National Teams in Penalty Shootouts
 
 ##  Rationale 
-The analysis first filters the Matches dataset to retain only matches that were
-decided by a penalty shootout. Home-team and away-team participation are counted
-separately because they are stored in different variables and the task requires
-two separate rankings.
+Question 3 first uses 'subset()' to select only those matches that 'PenaltyShootout' equals one. Home and Away teams are counted. Are stored separately (HomeTeamID/AwayTeamID) and There are two rankings for task.
+The function table() is used to see the frequency of each TeamID value and as.data.frame() converts it to a dataframe. Convert the counts into a structure which can be sorted and joined. The counts are Merged to 'Teams' using 'TeamID' as the key as there are no unique keys to merge on in 'Teams' and therefore 'TeamName' and 'TeamCode' are not The data is stored in the 'Matches' data set.
+'order()' is a function which sorts the teams from the best to the worst The page with the numbers 1, 2, 3, 4, and 5 will be returned by the query NumberOfMatches, and by head(..., 5). The final The only difference between the tables and the table models is that the tables only contain the 'TeamName', 'TeamCode', and 'NumberOfMatches' properties, as do the table models. required output. When using alphabetical ordering, it can be used as a constant rule when The number of participants in each team is the same.
 
-The `table()` function is used to count how many times each Team ID appears.
-The resulting counts are then joined with the Teams dataset using `merge()` so
-that each Team ID can be displayed using its official TeamName and TeamCode.
-Finally, the results are sorted from highest to lowest and the first five teams
-are selected.
 ##Filter out the matches decided by a penalty shootout
 ```{r q3-filter-penalty-matches}
 Q3penalty_matches <- subset(
@@ -555,7 +511,7 @@ HomeTeamResults <- HomeTeamResults[
   c("TeamName", "TeamCode", "NumberOfMatches")
 ]
 
-# Select the top five teams
+# Select the top five away teams
 Top5HomeTeams <- head(HomeTeamResults, 5)
 
 Top5HomeTeams
@@ -587,9 +543,361 @@ AwayTeamResults <- AwayTeamResults[
   ,
   c("TeamName", "TeamCode", "NumberOfMatches")
 ]
-
+#Select the top five away-teams
 Top5AwayTeams <- head(AwayTeamResults, 5)
 
 Top5AwayTeams
 ```
+## Discussion
+There is a considerable difference between the ranking of the home team and the ranking of the away team. Argentina, Brazil, Home teams shared the lead with four penalty shootout with Spain. appearances each. 348, followed by the Netherlands and West Germany with three.Three after that, followed by the Netherlands and West Germany, with 348. appearances.
+Fourth-placed France has five appearances, followed by Italy and Switzerland. There are three in Argentina and three in England. Italy and Croatia fill the away half.The away half is rounded off by Croatia and Italy. 5 players with 2 starts apiece.
+Argentina is the only team that is in both top-5s, meaning: Teams' participation, whether at home or away, was high, particularly when not recorded. away side. France are the number one away team but not in the home top. Brazil and Spain have the opposite pattern as shown by the numbers five.
+These are participation-based ranks and not success-based ranks. They aren't a way to show how A number of shootouts that each team had won. They may not be used as evidence of any kind either. There are not a lot of home and away labels to be identified, except the labels World Cup home and World Cup away are mostly used to indicate of home ground advantage. In a match, the two teams that are pitted against each other. In general, the two roles are separated and the Ranking and shows trends that otherwise wouldn't be observed in a cumulative total.
 
+## Code testing
+
+```{r q3-code-testing}
+# Confirm that every filtered observation is a penalty-shootout match.
+
+stopifnot(
+  all(Q3penalty_matches$PenaltyShootout == 1)
+)
+
+# Confirm that the filtered dataset is not empty.
+
+stopifnot(
+  nrow(Q3penalty_matches) > 0
+)
+
+# Every shootout match must contribute one home-team observation.
+
+stopifnot(
+  sum(HomeTeamCounts$NumberOfMatches) ==
+    nrow(Q3penalty_matches)
+)
+
+# Every shootout match must contribute one away-team observation.
+
+stopifnot(
+  sum(AwayTeamCounts$NumberOfMatches) ==
+    nrow(Q3penalty_matches)
+)
+
+# Confirm that both final tables contain exactly five teams.
+
+stopifnot(
+  nrow(Top5HomeTeams) == 5
+)
+
+stopifnot(
+  nrow(Top5AwayTeams) == 5
+)
+
+# Confirm that the final tables contain the required columns.
+
+stopifnot(
+  identical(
+    names(Top5HomeTeams),
+    c(
+      "TeamName",
+      "TeamCode",
+      "NumberOfMatches"
+    )
+  )
+)
+
+stopifnot(
+  identical(
+    names(Top5AwayTeams),
+    c(
+      "TeamName",
+      "TeamCode",
+      "NumberOfMatches"
+    )
+  )
+)
+
+cat("All Question 3 tests passed successfully.")
+```
+
+# Question 4: Factors Associated with Match Outcomes
+
+## Rationale
+
+Stage and ExtraTime are categorical factors so these have been selected. available directly in 'Matches' and are more likely to be related to how a match is resolved.
+The function table() produces cross tabulations of the data between each factor and Result. Raw Percentages are more useful than counts, for checking sample sizes. few players.Too few players in stages and extra time groups to be suitable for comparison. These are the number of matches, which are calculated by the function prop.table(..., margin = 1) The percentage for each factor category for the outcome.
+One-hundred-percent stacked bar charts are used to show the Relative proportions of home team wins, away team wins and draws, and ignoring all groups with the same height, using a different order in the second coordinate. 'coord_flip()' makes all groups easier to read by changing their order in the second coordinate. long stage labels.
+The analysis is descriptive in nature, and not explanatory. The interpretation also takes into account the different sample sizes and the assumption that the variables 'Stage' and 'ExtraTime' are related to each other.
+
+## Overall match outcomes
+
+```{r q4-overall-result}
+# Count the total number of matches for each result.
+
+OverallResult <- table(Matches$Result)
+
+OverallResult
+```
+
+There are 545 home-team wins, 240 away-team wins, and 179 draws. Home-team wins
+are therefore the most common outcome in the complete dataset.
+
+## Factor 1: Competition Stage
+
+### Create a table of outcomes by Stage
+
+```{r q4-stage-table}
+# Count each match outcome within every competition stage.
+
+StageResultCount <- table(
+  Matches$Stage,
+  Matches$Result
+)
+
+# Convert the counts into row percentages.
+# margin = 1 calculates percentages within each stage.
+
+StageResultPercent <- round(
+  prop.table(
+    StageResultCount,
+    margin = 1
+  ) * 100,
+  1
+)
+
+# Present the percentage table.
+
+knitr::kable(
+  StageResultPercent,
+  caption = "Percentage of Match Outcomes by Competition Stage"
+)
+```
+
+Each row represents one competition stage and adds to approximately 100%.
+
+### Visualise Result by Stage
+
+```{r q4-stage-chart, fig.width=9, fig.height=6}
+ggplot(
+  Matches,
+  aes(
+    x = Stage,
+    fill = Result
+  )
+) +
+  geom_bar(
+    position = "fill",
+    colour = "black"
+  ) +
+  coord_flip() +
+  scale_y_continuous(
+    labels = scales::percent_format()
+  ) +
+  labs(
+    title = "Match Outcomes by Competition Stage",
+    x = "Competition stage",
+    y = "Percentage of matches",
+    fill = "Match result"
+  ) +
+  theme_minimal()
+```
+
+### Interpretation of Stage
+
+There is a clear association between 'Result' and competition stage. During the group stage, 51.2% of games are won by the home side, 24.3% are won by the away side. That results in a relatively even distribution of wins and draws with 24.6% of them being draws. distribution.
+Drops become less frequent in the knockout stages. They make up just 2.1% of round of 16 games and 2.9% of quarter finals, and no games in semi-finals, and Third place matches, or finals. This mirrors the knockout rules of which are: Typically have a winner.
+76.3% of round of 16 games, 73.7% of semi-finals and 88.8% of finals are won by home teams.The home team wins 76.3% of round of 16 games, 73.7% of semi-finals and 88.8% of finals. and 81.0% of finals. These percentages are based on a much smaller, however. The 676 group stage games were won by just as many sides as the 125 samples. The data set includes, for instance, only 21 finals.
+The second group stage is a more even one with 47.2% home victories and 30.6% away victories, and 22.2% draws. Overall, the strongest association of 'Stage' is with the frequency This could be due to the tournament format or team difference, but it's likely due to draws. Extracurricular activities based on the information contained within the text.
+
+
+## Factor 2: Extra Time
+
+### Create a table of outcomes by ExtraTime
+
+```{r q4-extra-time-table}
+# Count each match outcome according to whether extra time occurred.
+
+ExtraTimeResultCount <- table(
+  Matches$ExtraTime,
+  Matches$Result
+)
+
+# Convert the counts into percentages within each ExtraTime group.
+
+ExtraTimeResultPercent <- round(
+  prop.table(
+    ExtraTimeResultCount,
+    margin = 1
+  ) * 100,
+  1
+)
+
+# Present the percentage table.
+
+knitr::kable(
+  ExtraTimeResultPercent,
+  caption = "Percentage of Match Outcomes by Extra-Time Status"
+)
+```
+
+In this variable:
+
+```text
+0 = no extra time
+1 = extra time occurred
+```
+
+### Visualise Result by ExtraTime
+
+```{r q4-extra-time-chart, fig.width=8, fig.height=5}
+ggplot(
+  Matches,
+  aes(
+    x = ExtraTime,
+    fill = Result
+  )
+) +
+  geom_bar(
+    position = "fill",
+    colour = "black"
+  ) +
+  scale_y_continuous(
+    labels = scales::percent_format()
+  ) +
+  labs(
+    title = "Match Outcomes by Extra-Time Status",
+    x = "Extra time: 0 = No, 1 = Yes",
+    y = "Percentage of matches",
+    fill = "Match result"
+  ) +
+  theme_minimal()
+```
+
+### Interpretation of ExtraTime
+
+The results of the matches also vary based on the 'ExtraTime' property. Among 891 matches without 24.1% in an away-team win, while in extra time, 56.5% of the games were won by the home team. 19.4% in a draw.
+In 73 extra-time games, 57.5% had been won by the home team, 34.2% had been won by the away team. 8.2% of the matches ended in a draw. However, the proportions for the home-wins are nearly the same, Extra time on the scoreboard makes away-team victories about ten percentage points more likely. Draws are approximately eleven per cent less common, and occurs when it doesn't.
+The lower draw proportion is understandable, due to the fact that additional time usually occurs. In the knockout rounds if there is a winner required. Some matches might still contain a 'Result' It was a draw and the advancing side was chosen by a penalty shootout at the end of the match. team.
+As the additional group is quite small, percentage in additional group are more. Has been receptive to individual observations. The pattern thus indicates a association does not lead to any direct change of which side is playing, but just that they are playing together. wins.
+
+## Overall discussion
+Both of the two factors that have been selected, the factor 'Stage' produces the clearer and more The variations in the 'Result' field are interpretable and, in particular, the difference between the 'group' and 'group2' values is interpretable. matches, with or without draw, and knockout matches. uncommon.
+A few variables are associated with ExtraTime, such as less drawing and more win away from home. The home-win proportion is stable, and the proportion of home wins drops. The factors are not independent as extra time is predominantly at the end, in the knockout phase. Therefore, An extra time part of the 'ExtraTime' pattern might not be due to additional time, but due to stage rules itself.
+Other factors which are not measured, such as team quality, opponent power, tournament, etc, also play a role. The results, 'Result', may also be influenced by year, and competition format. The analysis should should therefore be displayed as patterns and relationships within the data set, not as an evidence for a specific result of a match.
+
+
+## Code testing
+
+```{r q4-code-testing}
+# Check that Result contains three categories.
+
+stopifnot(
+  nlevels(Matches$Result) == 3
+)
+
+# Check that Stage and ExtraTime are factors.
+
+stopifnot(
+  is.factor(Matches$Stage)
+)
+
+stopifnot(
+  is.factor(Matches$ExtraTime)
+)
+
+# Check that every match was included in the Stage table.
+
+stopifnot(
+  sum(StageResultCount) == nrow(Matches)
+)
+
+# Check that every match was included in the ExtraTime table.
+
+stopifnot(
+  sum(ExtraTimeResultCount) == nrow(Matches)
+)
+
+# Check that the percentage-table rows total approximately 100%.
+
+stopifnot(
+  all(
+    abs(
+      rowSums(StageResultPercent) - 100
+    ) <= 0.2
+  )
+)
+
+stopifnot(
+  all(
+    abs(
+      rowSums(ExtraTimeResultPercent) - 100
+    ) <= 0.2
+  )
+)
+
+cat("All Question 4 tests passed successfully.")
+```
+#Question 5: GitHub repository and commit on this platform
+
+## GitHub Repository
+
+The complete source code, datasets, report files, and development history for
+this assignment are available in the following GitHub repository:
+
+<https://github.com/mapphat2005-svg/COMP1013--Analysis-Programming-assignment>
+
+## Repository Structure
+- data/ contains all task dataset 
+
+- scripts/ contains the R scripts used to analyze the question 1 to 4
+
+- report/ contains the official report
+
+- figures/ contains the image used in the report
+
+## Git Commit History
+
+The following screenshot shows the Git commit history created during the
+development of the assignment.
+
+```{r task5-git-history, echo=FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics(
+  here::here(
+    "output",
+    "figures",
+    "git_commit_history.png"
+  )
+)
+```
+
+## Explanation of Development Commits
+
+The assignment was developed through a series of separate commits rather than
+being uploaded as one final version. Each commit represents a meaningful stage
+of development.
+
+1. **Initial commit**  
+   This commit created the initial GitHub repository and established the main
+   branch.
+
+2. **Create GitHub repository and upload datasets for this assignment**  
+   This commit added the four original CSV datasets and created the folders for
+   data, scripts, report files, figures, and tables.
+
+3. **Complete Question 1 data cleaning and penalty visualisation**  
+   This commit added the code for inspecting the datasets, replacing question
+   marks with missing values, converting variable types, processing penalty
+   values, and visualising the distribution of `HomePenalty`.
+
+4. **Complete Question 3 penalty shootout team rankings**  
+   This commit added the analysis that identified the five home teams and five
+   away teams most frequently involved in penalty shootouts.
+
+5. **All R scripts were used in the assignment**  
+   This commit reorganised the code from the different questions into one
+   complete R script. The consolidation made it possible to run the assignment
+   analysis from a single file.
+
+7. **Finalise report and submission files**  
+   This final commit added the completed PDF report, the Git commit-history
+   screenshot, and the final formatting and proofreading changes.
